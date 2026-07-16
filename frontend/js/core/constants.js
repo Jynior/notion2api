@@ -18,13 +18,14 @@ window.NotionAI.Core.Constants = {
         DELETE_CONVERSATION: (id) => `/v1/conversations/${encodeURIComponent(id)}`
     },
 
-    // Model definitions with grouping
+    // Model definitions with grouping (keep in sync with app/model_registry.py)
     MODEL_GROUPS: [
         {
             label: 'Anthropic',
             models: [
                 { id: "claude-sonnet4.6", label: "Sonnet 4.6", icon: "✳️", desc: "Fast & efficient" },
                 { id: "claude-sonnet5", label: "Sonnet 5", icon: "✳️", badge: "New" },
+                { id: "claude-haiku4.5", label: "Haiku 4.5", icon: "✳️" },
                 { id: "claude-opus4.6", label: "Opus 4.6", icon: "✳️" },
                 { id: "claude-opus4.7", label: "Opus 4.7", icon: "✳️" },
                 { id: "claude-opus4.8", label: "Opus 4.8", icon: "✳️" },
@@ -33,9 +34,14 @@ window.NotionAI.Core.Constants = {
         {
             label: 'OpenAI',
             models: [
-                { id: "gpt-5.2", label: "GPT-5.2", icon: "⚙" },
-                { id: "gpt-5.4", label: "GPT-5.4", icon: "⚙" },
-                { id: "gpt-5.5", label: "GPT-5.5", icon: "⚙", badge: "Beta" },
+                { id: "gpt-5.2", label: "GPT-5.2", icon: "⚙️" },
+                { id: "gpt-5.4", label: "GPT-5.4", icon: "⚙️" },
+                { id: "gpt-5.4-mini", label: "GPT-5.4 Mini", icon: "⚙️" },
+                { id: "gpt-5.4-nano", label: "GPT-5.4 Nano", icon: "⚙️" },
+                { id: "gpt-5.5", label: "GPT-5.5", icon: "⚙️", badge: "Beta" },
+                { id: "gpt-5.6-sol", label: "GPT-5.6 Sol", icon: "⚙️", badge: "New" },
+                { id: "gpt-5.6-terra", label: "GPT-5.6 Terra", icon: "⚙️", badge: "New" },
+                { id: "gpt-5.6-luna", label: "GPT-5.6 Luna", icon: "⚙️", badge: "New" },
             ]
         },
         {
@@ -43,18 +49,22 @@ window.NotionAI.Core.Constants = {
             models: [
                 { id: "gemini-2.5flash", label: "Gemini 2.5 Flash", icon: "✦", desc: "No thinking delay" },
                 { id: "gemini-3.1pro", label: "Gemini 3.1 Pro", icon: "✦" },
+                { id: "gemini-3.5flash", label: "Gemini 3.5 Flash", icon: "✦", badge: "New" },
+                { id: "gemini-3-flash", label: "Gemini 3 Flash", icon: "✦", badge: "New" },
             ]
         },
         {
             label: 'Moonshot',
             models: [
                 { id: "kimi-2.6", label: "Kimi 2.6", icon: "🌙", badge: "Beta" },
+                { id: "kimi-2.7-code", label: "Kimi 2.7 Code", icon: "🌙", badge: "New" },
             ]
         },
         {
             label: 'xAI',
             models: [
                 { id: "grok-4.3", label: "Grok 4.3", icon: "⚡", badge: "New" },
+                { id: "grok-spacexai4.5", label: "SpaceXAI 4.5", icon: "⚡", badge: "New" },
                 { id: "grok-build0.1", label: "Grok Build 0.1", icon: "⚡", badge: "New" },
             ]
         },
@@ -63,6 +73,13 @@ window.NotionAI.Core.Constants = {
             models: [
                 { id: "deepseek-v4pro", label: "DeepSeek V4 Pro", icon: "🐋", badge: "New" },
             ]
+        },
+        {
+            label: 'Other',
+            models: [
+                { id: "glm-5.2", label: "GLM 5.2", icon: "🧩", badge: "New" },
+                { id: "fable-5", label: "Fable 5", icon: "✳️", badge: "New" },
+            ]
         }
     ],
 
@@ -70,18 +87,30 @@ window.NotionAI.Core.Constants = {
     MODELS: [
         { id: "claude-sonnet4.6", label: "Sonnet 4.6" },
         { id: "claude-sonnet5", label: "Sonnet 5" },
+        { id: "claude-haiku4.5", label: "Haiku 4.5" },
         { id: "claude-opus4.6", label: "Opus 4.6" },
         { id: "claude-opus4.7", label: "Opus 4.7" },
         { id: "claude-opus4.8", label: "Opus 4.8" },
         { id: "gpt-5.2", label: "GPT-5.2" },
         { id: "gpt-5.4", label: "GPT-5.4" },
+        { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+        { id: "gpt-5.4-nano", label: "GPT-5.4 Nano" },
         { id: "gpt-5.5", label: "GPT-5.5" },
+        { id: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
+        { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
+        { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
         { id: "gemini-2.5flash", label: "Gemini 2.5 Flash" },
         { id: "gemini-3.1pro", label: "Gemini 3.1 Pro" },
+        { id: "gemini-3.5flash", label: "Gemini 3.5 Flash" },
+        { id: "gemini-3-flash", label: "Gemini 3 Flash" },
         { id: "kimi-2.6", label: "Kimi 2.6" },
+        { id: "kimi-2.7-code", label: "Kimi 2.7 Code" },
         { id: "grok-4.3", label: "Grok 4.3" },
+        { id: "grok-spacexai4.5", label: "SpaceXAI 4.5" },
         { id: "grok-build0.1", label: "Grok Build 0.1" },
         { id: "deepseek-v4pro", label: "DeepSeek V4 Pro" },
+        { id: "glm-5.2", label: "GLM 5.2" },
+        { id: "fable-5", label: "Fable 5" },
     ],
 
     DEFAULT_MODEL: "claude-sonnet4.6",
@@ -89,35 +118,59 @@ window.NotionAI.Core.Constants = {
     MODEL_DISPLAY_NAMES: {
         "claude-sonnet4.6": "Sonnet 4.6",
         "claude-sonnet5": "Sonnet 5",
+        "claude-haiku4.5": "Haiku 4.5",
         "claude-opus4.6": "Opus 4.6",
         "claude-opus4.7": "Opus 4.7",
         "claude-opus4.8": "Opus 4.8",
         "gpt-5.2": "GPT-5.2",
         "gpt-5.4": "GPT-5.4",
+        "gpt-5.4-mini": "GPT-5.4 Mini",
+        "gpt-5.4-nano": "GPT-5.4 Nano",
         "gpt-5.5": "GPT-5.5",
+        "gpt-5.6-sol": "GPT-5.6 Sol",
+        "gpt-5.6-terra": "GPT-5.6 Terra",
+        "gpt-5.6-luna": "GPT-5.6 Luna",
         "gemini-2.5flash": "Gemini 2.5 Flash",
         "gemini-3.1pro": "Gemini 3.1 Pro",
+        "gemini-3.5flash": "Gemini 3.5 Flash",
+        "gemini-3-flash": "Gemini 3 Flash",
         "kimi-2.6": "Kimi 2.6",
+        "kimi-2.7-code": "Kimi 2.7 Code",
         "grok-4.3": "Grok 4.3",
+        "grok-spacexai4.5": "SpaceXAI 4.5",
         "grok-build0.1": "Grok Build 0.1",
         "deepseek-v4pro": "DeepSeek V4 Pro",
+        "glm-5.2": "GLM 5.2",
+        "fable-5": "Fable 5",
     },
 
     MODEL_ICONS: {
         "claude-sonnet4.6": "✳️",
         "claude-sonnet5": "✳️",
+        "claude-haiku4.5": "✳️",
         "claude-opus4.6": "✳️",
         "claude-opus4.7": "✳️",
         "claude-opus4.8": "✳️",
-        "gpt-5.2": "⚙",
-        "gpt-5.4": "⚙",
-        "gpt-5.5": "⚙",
+        "gpt-5.2": "⚙️",
+        "gpt-5.4": "⚙️",
+        "gpt-5.4-mini": "⚙️",
+        "gpt-5.4-nano": "⚙️",
+        "gpt-5.5": "⚙️",
+        "gpt-5.6-sol": "⚙️",
+        "gpt-5.6-terra": "⚙️",
+        "gpt-5.6-luna": "⚙️",
         "gemini-2.5flash": "✦",
         "gemini-3.1pro": "✦",
+        "gemini-3.5flash": "✦",
+        "gemini-3-flash": "✦",
         "kimi-2.6": "🌙",
+        "kimi-2.7-code": "🌙",
         "grok-4.3": "⚡",
+        "grok-spacexai4.5": "⚡",
         "grok-build0.1": "⚡",
         "deepseek-v4pro": "🐋",
+        "glm-5.2": "🧩",
+        "fable-5": "✳️",
     },
 
     GREETINGS: {
