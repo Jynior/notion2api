@@ -1,26 +1,26 @@
 /**
- * Notion 账号信息提取脚本（旧版手动备用流程）
+ * Notion Account info extraction script (legacy manual fallback)
  *
- * 推荐优先运行 `python login.py`。该登录脚本会自动打开临时 Chrome/Edge
- * 调试窗口，并从本地浏览器会话中提取 token_v2 和账号/工作区字段。
+ * 推荐优先运行 `python login.py`。This login helper opens a temporary Chrome/Edge
+ * debug console and extract token_v2 plus account/workspace fields from the browser session.
  *
- * 如果自动登录流程不可用，可以使用本手动脚本：
- * 1. 浏览器登录 https://www.notion.so/ai
- * 2. 确保左上角切换到你要提取的账号
- * 3. F12 → Application → Cookies → 复制 token_v2 的值
+ * If the automated login flow is unavailable, use this manual script:
+ * 1. Browser login https://www.notion.so/ai
+ * 2. Make sure the top-left account switcher is the account you want
+ * 3. F12 → Application → Cookies → Copy the token_v2 value
  * 4. F12 → Console → 粘贴本脚本 → 回车
- * 5. 如果有多个账号/工作区，按提示选择
- * 6. 把输出的 JSON 粘贴到 accounts.json，替换 YOUR_TOKEN_V2
+ * 5. If multiple accounts/workspaces, pick as prompted
+ * 6. Paste the output JSON into accounts.json，Replace YOUR_TOKEN_V2
  */
 (async () => {
   try {
-    // ─── 第 1 步：获取所有可访问的用户和空间 ───
-    // getSpaces 会返回当前 token 能看到的所有用户（含多账号）
+    // ─── Step 1: fetch all accessible users and spaces ───
+    // getSpaces Returns all users visible to the current token (multi-account)
     let allUsers = {};  // user_id → {name, email}
     let allSpaces = {}; // space_id → {name, plan, members}
     let spaceViewMap = {}; // space_id → space_view_id
 
-    // 尝试 getSpaces（返回更完整的多账号数据）
+    // Try getSpaces (richer multi-account data)
     try {
       const r1 = await fetch('/api/v3/getSpaces', {
         method: 'POST', headers: { 'content-type': 'application/json' },
@@ -31,7 +31,7 @@
       if (d1 && typeof d1 === 'object' && !d1.recordMap) {
         for (const [userId, userData] of Object.entries(d1)) {
           if (!userData || typeof userData !== 'object') continue;
-          // 提取用户信息
+          // 提取User信息
           const nu = userData.notion_user;
           if (nu) {
             for (const [nuid, nuData] of Object.entries(nu)) {
@@ -55,7 +55,7 @@
               }
             }
           }
-          // 提取 space_view
+          // Extract space_view
           const sv = userData.space_view;
           if (sv) {
             for (const [svid, svData] of Object.entries(sv)) {
@@ -65,7 +65,7 @@
           }
         }
       }
-    } catch (e) { /* getSpaces 失败，fallback 到 loadUserContent */ }
+    } catch (e) { /* getSpaces failed; fall back to loadUserContent */ }
 
     // fallback：loadUserContent
     const r2 = await fetch('/api/v3/loadUserContent', {
@@ -74,7 +74,7 @@
     });
     const d2 = (await r2.json()).recordMap || {};
 
-    // 合并用户
+    // 合并User
     for (const [nuid, nuData] of Object.entries(d2.notion_user || {})) {
       if (allUsers[nuid]) continue;
       const v = nuData?.value?.value || nuData?.value || nuData || {};
@@ -92,13 +92,13 @@
         plan: v.plan_type || v.subscription_tier || ''
       };
     }
-    // 合并 space_view
+    // Merge space_view
     for (const [svid, svData] of Object.entries(d2.space_view || {})) {
       const v = svData?.value?.value || svData?.value || svData || {};
       if (v.space_id && !spaceViewMap[v.space_id]) spaceViewMap[v.space_id] = svid;
     }
 
-    // 读取 cookie 中的 notion_user_id（当前 UI 上的活跃账号）
+    // Read notion_user_id from cookies (active UI account)
     const cookieUserId = document.cookie.split(';')
       .map(c => c.trim())
       .find(c => c.startsWith('notion_user_id='))
@@ -110,14 +110,14 @@
     }));
 
     if (userList.length === 0) {
-      console.error('❌ 未找到任何用户信息，请确认已登录 Notion');
+      console.error('❌ No user info found; confirm you are logged into Notion');
       return;
     }
 
-    // ─── 展示 & 选择用户 ───
+    // ─── 展示 & 选择User ───
     console.log('\n');
     console.log('%c═══════════════════════════════════════════════', 'color:#00a699');
-    console.log('%c  Notion 账号信息提取工具', 'font-size:15px;font-weight:bold;color:#00a699');
+    console.log('%c  Notion account extractor', 'font-size:15px;font-weight:bold;color:#00a699');
     console.log('%c═══════════════════════════════════════════════', 'color:#00a699');
     console.log('');
 
@@ -127,27 +127,27 @@
       chosenUserId = userList[0][0];
       chosenUserName = userList[0][1].name;
       chosenUserEmail = userList[0][1].email;
-      console.log(`%c👤 用户: ${chosenUserName || '(未知)'} ${chosenUserEmail ? '(' + chosenUserEmail + ')' : ''}`, 'font-size:13px');
+      console.log(`%c👤 User: ${chosenUserName || '(unknown)'} ${chosenUserEmail ? '(' + chosenUserEmail + ')' : ''}`, 'font-size:13px');
     } else {
-      console.log(`%c👥 检测到 ${userList.length} 个 Notion 账号：`, 'font-size:13px;font-weight:bold');
+      console.log(`%c👥 检测到 ${userList.length}  Notion accounts:`, 'font-size:13px;font-weight:bold');
       console.log('');
       userList.forEach(([uid, u], i) => {
-        const active = uid === cookieUserId ? ' ← 当前活跃' : '';
-        console.log(`%c  [${i}]  ${u.name || '(未知)'} ${u.email ? '(' + u.email + ')' : ''}${active}`, 'font-size:13px');
+        const active = uid === cookieUserId ? ' ← active' : '';
+        console.log(`%c  [${i}]  ${u.name || '(unknown)'} ${u.email ? '(' + u.email + ')' : ''}${active}`, 'font-size:13px');
       });
       console.log('');
-      console.log('%c👆 请查看上方账号列表，3 秒后弹窗选择...', 'color:#ff9800;font-size:12px');
+      console.log('%c👆 See the account list above; picker in 3s...', 'color:#ff9800;font-size:12px');
 
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       const promptText = userList.map(([uid, u], i) => {
-        const active = uid === cookieUserId ? ' ← 当前' : '';
-        return `[${i}] ${u.name || '(未知)'} ${u.email ? '(' + u.email + ')' : ''}${active}`;
+        const active = uid === cookieUserId ? ' ← current' : '';
+        return `[${i}] ${u.name || '(unknown)'} ${u.email ? '(' + u.email + ')' : ''}${active}`;
       }).join('\n');
 
-      const idx = prompt(`请选择要提取的账号：\n\n${promptText}\n\n输入编号 (0 ~ ${userList.length - 1})：`);
+      const idx = prompt(`Select the account to extract:\n\n${promptText}\n\nEnter index (0 ~ ${userList.length - 1})：`);
       if (idx === null || idx.trim() === '') {
-        console.log('%c⚠️ 已取消', 'color:#ff9800');
+        console.log('%c⚠️ Cancelled', 'color:#ff9800');
         return;
       }
       const chosen = userList[parseInt(idx)];
@@ -160,11 +160,11 @@
       chosenUserEmail = chosen[1].email;
     }
 
-    console.log(`%c✅ 选择用户: ${chosenUserName || chosenUserId.slice(0,8)} ${chosenUserEmail ? '(' + chosenUserEmail + ')' : ''}`, 'color:#00c853;font-size:13px');
+    console.log(`%c✅ 选择User: ${chosenUserName || chosenUserId.slice(0,8)} ${chosenUserEmail ? '(' + chosenUserEmail + ')' : ''}`, 'color:#00c853;font-size:13px');
 
     // ─── 选择工作区 ───
     if (spaceList.length === 0) {
-      console.error('❌ 未找到任何工作区');
+      console.error('❌ No workspaces found');
       return;
     }
 
@@ -180,10 +180,10 @@
     let chosenSpace;
     if (spaceList.length === 1) {
       chosenSpace = spaceList[0];
-      console.log('%c🎯 只有一个工作区，自动选择', 'color:#2196f3;font-weight:bold');
+      console.log('%c🎯 Only one workspace; auto-selected', 'color:#2196f3;font-weight:bold');
     } else {
       console.log('');
-      console.log('%c👆 3 秒后弹窗选择工作区...', 'color:#ff9800;font-size:12px');
+      console.log('%c👆 Workspace picker in 3s...', 'color:#ff9800;font-size:12px');
       await new Promise(resolve => setTimeout(resolve, 3000));
 
       const promptText = spaceList.map((s, i) => {
@@ -191,9 +191,9 @@
         return `[${i}] ${label}`;
       }).join('\n');
 
-      const idx = prompt(`请选择有 AI 功能的工作区：\n\n${promptText}\n\n输入编号 (0 ~ ${spaceList.length - 1})：`);
+      const idx = prompt(`Select a workspace with AI enabled:\n\n${promptText}\n\nEnter index (0 ~ ${spaceList.length - 1})：`);
       if (idx === null || idx.trim() === '') {
-        console.log('%c⚠️ 已取消', 'color:#ff9800');
+        console.log('%c⚠️ Cancelled', 'color:#ff9800');
         return;
       }
       chosenSpace = spaceList[parseInt(idx)];
@@ -218,20 +218,20 @@
 
     console.log('');
     console.log('%c═══════════════════════════════════════════════', 'color:#00c853');
-    console.log(`%c✅ 用户: ${chosenUserName || '(未知)'}  工作区: ${spaceLabel}`, 'color:#00c853;font-weight:bold;font-size:14px');
+    console.log(`%c✅ User: ${chosenUserName || '(unknown)'}  工作区: ${spaceLabel}`, 'color:#00c853;font-weight:bold;font-size:14px');
     console.log('%c═══════════════════════════════════════════════', 'color:#00c853');
     console.log('');
     console.log(json);
     console.log('');
-    console.log('%c⚠️  下一步：把 YOUR_TOKEN_V2 替换为你复制的 token_v2 值', 'color:#ff9800;font-weight:bold');
-    console.log('%c   然后粘贴到 accounts.json 数组中', 'color:#ff9800');
-    console.log('%c   ⚠️  注意：token_v2 要用你选择的那个账号的！在 Cookies 里确认', 'color:#ff9800');
+    console.log('%c⚠️  Next: replace YOUR_TOKEN_V2 with the token_v2 you copied', 'color:#ff9800;font-weight:bold');
+    console.log('%c   Then paste into the accounts.json array', 'color:#ff9800');
+    console.log('%c   ⚠️  Use the token_v2 for the selected account (confirm in Cookies)', 'color:#ff9800');
 
     setTimeout(() => {
       navigator.clipboard.writeText(json)
-        .then(() => console.log('%c📋 已自动复制到剪贴板', 'color:#00c853'))
-        .catch(() => console.log('%c📋 请手动选中上方 JSON 复制', 'color:#ff9800'));
+        .then(() => console.log('%c📋 Copied to clipboard', 'color:#00c853'))
+        .catch(() => console.log('%c📋 Manually select and copy the JSON above', 'color:#ff9800'));
     }, 800);
 
-  } catch (e) { console.error('❌ 提取失败:', e.message) }
+  } catch (e) { console.error('❌ Extract failed:', e.message) }
 })();

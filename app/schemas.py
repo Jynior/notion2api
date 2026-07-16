@@ -50,7 +50,7 @@ def flatten_message_content(v: Any) -> str:
 
 
 # ================================
-# 请求相关 Schema (Chat Completion)
+# Request schemas (Chat Completion)
 # ================================
 
 class ChatMessage(BaseModel):
@@ -74,8 +74,8 @@ class ChatMessage(BaseModel):
 
 class ChatCompletionRequest(BaseModel):
     """
-    OpenAI-Compatible 发起完成请求的 Payload。
-    保留 `conversation_id` 作为特定的扩展字段，若缺失则视为独立请求。
+    OpenAI-compatible chat completion request payload.
+    Keep `conversation_id` as an extension field; if missing, treat as a standalone request.
     """
     model: str = Field(default="claude-opus4.6", description="Requested model.")
     messages: List[ChatMessage]
@@ -85,11 +85,11 @@ class ChatCompletionRequest(BaseModel):
 
 
 # ================================
-# 非流式返回 Schema
+# Non-streaming response schema
 # ================================
 
 class ChatMessageResponseChoice(BaseModel):
-    """非流式响应的选项"""
+    """Non-streaming response options"""
     index: int = 0
     message: ChatMessage
     finish_reason: str = "stop"
@@ -97,7 +97,7 @@ class ChatMessageResponseChoice(BaseModel):
 
 class ChatCompletionResponse(BaseModel):
     """
-    OpenAI-Compatible 完整返回 Payload。
+    OpenAI-Compatible Full response payload.
     """
     id: str
     object: str = "chat.completion"
@@ -112,7 +112,7 @@ class ChatCompletionResponse(BaseModel):
 
 
 # ================================
-# 流式返回 Schema (供内部组织)
+# Streaming response schema (internal)
 # ================================
 
 class ChatCompletionChunkDelta(BaseModel):
@@ -130,7 +130,7 @@ class ChatCompletionChunkChoice(BaseModel):
 
 class ChatCompletionChunk(BaseModel):
     """
-    OpenAI-Compatible 流式 Chunk
+    OpenAI-Compatible Stream chunk
     """
     id: str
     object: str = "chat.completion.chunk"

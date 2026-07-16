@@ -5,66 +5,66 @@
 
 case "$1" in
     start)
-        echo "🚀 启动服务..."
+        echo "🚀 Starting service..."
         docker-compose up -d
         ;;
     stop)
-        echo "🛑 停止服务..."
+        echo "🛑 Stopping service..."
         docker-compose down
         ;;
     restart)
-        echo "🔄 重启服务..."
+        echo "🔄 Restarting service..."
         docker-compose restart
         ;;
     status)
-        echo "📊 服务状态："
+        echo "📊 Service status:"
         docker-compose ps
         echo ""
-        echo "🏥 健康检查："
+        echo "🏥 Health check:"
         curl -s http://localhost:8000/health | jq . 2>/dev/null || curl -s http://localhost:8000/health
         ;;
     logs)
-        echo "📝 查看日志（Ctrl+C 退出）："
+        echo "📝 Logs (Ctrl+C to exit):"
         docker-compose logs -f
         ;;
     build)
-        echo "🔨 重新构建镜像..."
+        echo "🔨 Rebuilding image..."
         docker-compose build --no-cache
         ;;
     update)
-        echo "🔄 更新并重启服务..."
+        echo "🔄 Updating and restarting..."
         docker-compose down
         docker-compose build --no-cache
         docker-compose up -d
         ;;
     clean)
-        echo "🧹 清理容器和镜像..."
+        echo "🧹 Cleaning containers and images..."
         docker-compose down -v
         docker system prune -f
         ;;
     backup)
-        echo "💾 备份数据库..."
+        echo "💾 Backing up database..."
         BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"
         mkdir -p "$BACKUP_DIR"
         cp data/conversations.db "$BACKUP_DIR/"
-        echo "✅ 备份完成: $BACKUP_DIR"
+        echo "✅ Backup done: $BACKUP_DIR"
         ;;
     restore)
         if [ -z "$2" ]; then
-            echo "❌ 请指定备份目录，例如: ./manage.sh restore backups/20240306_120000"
+            echo "❌ Specify a backup dir, e.g. ./manage.sh restore backups/20240306_120000"
             exit 1
         fi
-        echo "📥 恢复数据库..."
+        echo "📥 Restoring database..."
         cp "$2/conversations.db" data/
-        echo "✅ 恢复完成，请重启服务: ./manage.sh restart"
+        echo "✅ Restore complete; restart: ./manage.sh restart"
         ;;
     shell)
-        echo "🐚 进入容器 Shell..."
+        echo "🐚 Opening container shell..."
         docker-compose exec notion-opus /bin/bash
         ;;
     test)
-        echo "🧪 测试 API..."
-        echo "发送测试请求..."
+        echo "🧪 Testing API..."
+        echo "Sending test request..."
         curl -X POST http://localhost:8000/v1/chat/completions \
             -H "Content-Type: application/json" \
             -d '{
@@ -75,25 +75,25 @@ case "$1" in
         ;;
     *)
         echo "=========================================="
-        echo "  Notion-AI 服务管理脚本"
+        echo "  Notion-AI service management script"
         echo "=========================================="
-        echo "用法: ./manage.sh {command}"
+        echo "Usage: ./manage.sh {command}"
         echo ""
-        echo "命令:"
-        echo "  start     - 启动服务"
-        echo "  stop      - 停止服务"
-        echo "  restart   - 重启服务"
-        echo "  status    - 查看状态"
-        echo "  logs      - 查看日志"
-        echo "  build     - 重新构建镜像"
-        echo "  update    - 更新并重启服务"
-        echo "  clean     - 清理容器和镜像"
-        echo "  backup    - 备份数据库"
-        echo "  restore   - 恢复数据库 (需要指定备份目录)"
-        echo "  shell     - 进入容器 Shell"
-        echo "  test      - 测试 API"
+        echo "Commands:"
+        echo "  start     - start service"
+        echo "  stop      - stop service"
+        echo "  restart   - restart service"
+        echo "  status    - status"
+        echo "  logs      - view logs"
+        echo "  build     - rebuild image"
+        echo "  update    - update and restart"
+        echo "  clean     - remove containers/images"
+        echo "  backup    - backup database"
+        echo "  restore   - restore database (needs backup dir)"
+        echo "  shell     - container shell"
+        echo "  test      - test API"
         echo ""
-        echo "示例:"
+        echo "Examples:"
         echo "  ./manage.sh start"
         echo "  ./manage.sh logs"
         echo "  ./manage.sh backup"

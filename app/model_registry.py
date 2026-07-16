@@ -51,7 +51,7 @@ MODEL_ICONS: dict[str, str] = {
     "deepseek-v4pro": "🐋",
 }
 
-# 默认使用 Sonnet 4.6（速度和质量的最佳平衡）
+# Default to Sonnet 4.6（best balance of speed and quality)
 DEFAULT_MODEL = "claude-sonnet4.6"
 
 
@@ -59,15 +59,15 @@ def get_notion_model(model_name: str) -> str:
     return MODEL_MAP.get(model_name, MODEL_MAP[DEFAULT_MODEL])
 
 
-# 需要走 markdown-chat 的 Notion 内部代号（vertex- 前缀的模型）
-# Gemini 3.1 Pro (galette-medium-thinking) 已改为 workflow，不再走 markdown-chat
+# Notion internal ids that use markdown-chat (vertex-prefixed models)
+# Gemini 3.1 Pro (galette-medium-thinking) Switched to workflow; no longer uses markdown-chat
 MARKDOWN_CHAT_MODELS: set[str] = {
     "vertex-gemini-2.5-flash",
 }
 
 
 def is_gemini_model(model_name: str) -> bool:
-    """判断是否为 Gemini 系列模型（用于 config block 构建等）"""
+    """Whether this is a Gemini-family model (config block building, etc.)"""
     standard_name = get_standard_model(model_name)
     if standard_name.startswith("gemini-"):
         return True
@@ -77,8 +77,8 @@ def is_gemini_model(model_name: str) -> bool:
 
 def get_thread_type(model_name: str) -> str:
     """
-    根据模型确定 Notion thread type。
-    只有 vertex- 前缀的模型走 markdown-chat，其余全部走 workflow。
+    Resolve Notion thread type from the model.
+    Only vertex-prefixed models use markdown-chat; everything else uses workflow.
     """
     standard_name = get_standard_model(model_name)
     notion_model = get_notion_model(standard_name)

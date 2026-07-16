@@ -8,27 +8,27 @@ from app.notion_client import NotionOpusAPI
 class AccountPool:
     def __init__(self, accounts: List[dict]):
         """
-        从配置列表初始化，每个 dict 对应一组凭据。
-        同时初始化客户端实例和它们的状态。
+        Initialize from a list of dicts; each dict is one set of credentials.
+        Also create client instances and their state.
         """
         if not accounts:
-            raise ValueError("账号池初始化失败：未提供任何账号配置。")
+            raise ValueError("Account pool init failed: no account configuration provided.")
             
         self.clients = [NotionOpusAPI(acc) for acc in accounts]
-        # 记录每个客户端的冷却释放时间戳（0 表示可用）
+        # Cooldown-until timestamp per client (0 = available)
         self.cooldown_until = [0.0 for _ in self.clients]
         
-        # 轮询索引
+        # Round-robin index
         self._current_index = 0
         self._lock = threading.Lock()
         
     def get_client(self, wait_if_cooling: bool = True) -> NotionOpusAPI:
         """
-        轮询（Round-Robin）返回下一个可用客户端。
-        过滤掉正处于冷却期中的客户端。
+        Return the next available client (round-robin).
+        Skip clients that are still cooling down.
 
-        如果 wait_if_cooling=True（默认），当所有账号都在冷却时，
-        会等待最近的冷却结束后返回，而不是抛异常。
+        If wait_if_cooling=True (default), when every account is cooling,
+        wait for the nearest cooldown to end instead of raising.
         """
         now = time.time()
         with self._lock:
@@ -36,22 +36,22 @@ class AccountPool:
             
             while True:
                 idx = self._current_index
-                # 如果过了冷却时间，视为可用
+                # Past cooldown → available
                 if self.cooldown_until[idx] <= now:
-                    # 轮询步进
+                    # Advance round-robin
                     self._current_index = (self._current_index + 1) % len(self.clients)
                     return self.clients[idx]
                     
-                # 不可用则顺延
+                # Skip unavailable
                 self._current_index = (self._current_index + 1) % len(self.clients)
                 
-                # 如果转了一圈都没找到可用的
+                # If a full cycle found no available client
                 if self._current_index == start_index:
                     next_available = min(self.cooldown_until)
                     wait_seconds = max(0.5, next_available - now)
 
                     if wait_if_cooling and wait_seconds <= 15:
-                        # 等待冷却结束后重新尝试
+                        # Wait for cooldown then retry
                         logger.info(
                             f"All accounts cooling, waiting {wait_seconds:.1f}s",
                             extra={
@@ -61,22 +61,22 @@ class AccountPool:
                                 }
                             },
                         )
-                        # 释放锁再 sleep，避免阻塞其他线程
+                        # Release the lock before sleep so other threads can proceed
                         self._lock.release()
                         try:
                             time.sleep(wait_seconds)
                         finally:
                             self._lock.acquire()
-                        # 更新时间后重新扫描
+                        # Refresh time and rescan
                         now = time.time()
                         continue
 
                     raise RuntimeError(
-                        f"所有账号冷却中，请在 {max(1, int(wait_seconds))} 秒后重试。"
+                        f"All accounts are cooling down. Retry in {max(1, int(wait_seconds))} seconds."
                     )
 
     def get_status_summary(self) -> Dict[str, int]:
-        """返回账号池简要状态，供健康检查和日志使用。"""
+        """Return a short account-pool status for health checks and logs."""
         now = time.time()
         with self._lock:
             active = sum(1 for ts in self.cooldown_until if ts <= now)
@@ -89,12 +89,12 @@ class AccountPool:
                     
     def mark_failed(self, client: NotionOpusAPI, cooldown_seconds: int = 3):
         """
-        标记某个客户端为临时不可用（默认冷却 3 秒后恢复）。
+        Mark a client as temporarily unavailable (default 3s cooldown).
         """
         with self._lock:
             try:
                 idx = self.clients.index(client)
-                # 记录未来的冷却解封时间
+                # Record when the cooldown ends
                 self.cooldown_until[idx] = time.time() + cooldown_seconds
                 logger.warning(
                     "Account marked as failed",

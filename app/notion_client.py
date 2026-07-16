@@ -12,18 +12,18 @@ from app.logger import logger
 from app.model_registry import get_notion_model
 from app.stream_parser import parse_stream
 
-# 禁用 SSL 警告
+# Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# 可通过环境变量覆盖 Notion 客户端版本号（Notion 更新后可能需要同步）
+# Override Notion client version via env (may need updates after Notion changes)
 NOTION_CLIENT_VERSION = os.getenv("NOTION_CLIENT_VERSION", "23.13.20260228.0625")
 
-# Notion 站点根地址（区域镜像 / 反代时可覆盖）；未设置时保持官方默认
+# Notion site base URL (override for mirror/proxy); default official site if unset
 NOTION_URL = os.getenv("NOTION_URL", "https://www.notion.so").rstrip("/")
 
 
 class NotionUpstreamError(RuntimeError):
-    """Notion 上游请求失败或返回异常内容。"""
+    """Notion upstream request failed or returned invalid content."""
 
     def __init__(
         self,
@@ -42,8 +42,8 @@ class NotionUpstreamError(RuntimeError):
 class NotionOpusAPI:
     def __init__(self, account_config: dict):
         """
-        从单组账号配置初始化 Notion 客户端。
-        account_config 需要包含 token_v2, space_id, user_id, space_view_id, user_name, user_email
+        Initialize the Notion client from one account config dict.
+        account_config Must include token_v2, space_id, user_id, space_view_id, user_name, user_email
         """
         self.token_v2 = account_config.get("token_v2", "")
         self.space_id = account_config.get("space_id", "")
@@ -60,7 +60,7 @@ class NotionOpusAPI:
         self.delete_url = f"{NOTION_URL}/api/v3/saveTransactions"
         self.account_key = self.user_email or self.user_id or "unknown-account"
 
-        # 复用 cloudscraper 实例：保留 Cloudflare challenge cookie，避免每次请求都重新过验证
+        # Reuse cloudscraper instance: keep Cloudflare challenge cookies to avoid re-solving every request
         self._scraper = cloudscraper.create_scraper()
         self._scraper_lock = threading.Lock()
 
@@ -184,9 +184,9 @@ class NotionOpusAPI:
 
     def delete_thread(self, thread_id: str) -> None:
         """
-        通过 saveTransactions 接口将指定 thread 的 alive 状态设为 False，
-        从而清理 Notion 主页面上的对话记录。
-        此方法设计为在后台线程中调用，不影响主流输出。
+        Set thread.alive=False via saveTransactions,
+        and clear chat entries from the Notion main UI.
+        Designed to run on a background thread without blocking the main stream.
         """
         headers = self._build_thread_headers()
         payload = {
@@ -230,12 +230,12 @@ class NotionOpusAPI:
 
     def stream_response(self, transcript: list, thread_id: Optional[str] = None) -> Generator[dict[str, Any], None, None]:
         """
-        发起 Notion API 请求并返回结构化流生成器。
-        接收完整的 transcript 列表作为参数。
+        Send a Notion API request and return a structured stream generator.
+        Accepts a full transcript list as input.
 
         Args:
-            transcript: 对话历史记录列表
-            thread_id: 可选的已有 thread_id。如果提供，将重用该线程以保持上下文
+            transcript: Conversation history list
+            thread_id: Optional existing thread_id. If set, reuse the thread to keep context
         """
         if not isinstance(transcript, list) or not transcript:
             raise ValueError("Invalid transcript payload: transcript must be a non-empty list.")
@@ -244,13 +244,13 @@ class NotionOpusAPI:
         thread_type = self._resolve_thread_type(notion_transcript)
         request_profile = self._resolve_request_profile(thread_type)
 
-        # 如果没有提供 thread_id，创建新的；否则重用已有的
+        # If no thread_id is provided, create one; otherwise reuse
         should_create_thread = thread_id is None
         thread_id = thread_id or str(uuid.uuid4())
         trace_id = str(uuid.uuid4())
         response = None
 
-        # 保存 thread_id 以便外部访问
+        # Persist thread_id for external access
         self.current_thread_id = thread_id
 
         if request_profile["precreate_thread"] and should_create_thread:
@@ -259,13 +259,13 @@ class NotionOpusAPI:
                 request_profile["create_thread"] = True
                 request_profile["is_partial_transcript"] = False
         elif not should_create_thread:
-            # 如果重用已有线程，不要创建新线程
+            # If reusing an existing thread, do not create a new one
             request_profile["create_thread"] = False
-            # 关键修复：设置 is_partial_transcript=True，让 Notion 接受客户端的历史消息
+            # Key fix: set is_partial_transcript=True，Make Notion accept client-side history
             request_profile["is_partial_transcript"] = True
 
-        # 把 cookie 直接放进 header，绕过 cloudscraper 的 cookie jar
-        # （cookie jar 可能被 Cloudflare challenge 写入含非 ASCII 字符的 cookie，导致编码错误）
+        # Put cookies directly in headers, bypassing cloudscraper's cookie jar
+        # (cookie jar may receive non-ASCII cookies from Cloudflare challenge and break encoding)
         cookie_header = self._build_cookie_header()
 
         headers = {
@@ -337,7 +337,7 @@ class NotionOpusAPI:
                 timeout=(15, 120),
             )
             if response.status_code == 403:
-                # Cloudflare challenge 可能过期，重建 scraper 后重试一次
+                # Cloudflare challenge May expire; rebuild the scraper and retry once
                 response.close()
                 logger.warning(
                     "Got 403, rebuilding cloudscraper to refresh Cloudflare challenge",
@@ -355,7 +355,7 @@ class NotionOpusAPI:
                 )
             if response.status_code != 200:
                 excerpt = (response.text or "").strip().replace("\n", " ")[:300]
-                # 429 和 5xx 都允许重试（换账号或等待后重试）
+                # 429 and 5xx are retriable (switch account or wait)
                 retriable = response.status_code >= 500 or response.status_code == 429
                 raise NotionUpstreamError(
                     f"Notion upstream returned HTTP {response.status_code}.",
@@ -376,10 +376,10 @@ class NotionOpusAPI:
                     retriable=True,
                 )
 
-            # 流结束后，不再自动删除 thread
-            # 原因：Notion API 的 workflow 模式依赖于服务器端保存的对话历史
-            # 删除 thread 会导致后续请求无法获取历史消息（AI 失忆）
-            # 保持 thread 存活可以维持对话上下文
+            # After the stream ends, do not auto-delete the thread
+            # Reason: Notion workflow mode depends on server-side conversation history
+            # Deleting the thread would lose history for later requests (AI amnesia)
+            # Keeping the thread alive preserves conversation context
             logger.info(
                 "Thread completed and preserved for conversation context",
                 extra={
@@ -395,7 +395,7 @@ class NotionOpusAPI:
             raise NotionUpstreamError("Request to Notion upstream timed out.", retriable=True) from exc
         except requests.exceptions.RequestException as exc:
             logger.error(f"Request failed: {exc}", exc_info=True)
-            # 不暴露原始异常细节给用户
+            # 不暴露原始异常细节给User
             raise NotionUpstreamError("Request to Notion upstream failed. Please try again later.", retriable=True) from exc
         finally:
             if response is not None:
