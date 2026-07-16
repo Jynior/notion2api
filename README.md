@@ -3,7 +3,7 @@
 **Notion AI → локальный OpenAI-совместимый API** (`/v1/chat/completions`) + веб-чат (Notion AI Studio) с GitHub push, режимами Plan/Build/Chat и вложениями.
 
 > **Инструкция ниже в первую очередь рассчитана на Windows** (проверено: PowerShell, venv, Chrome/Edge).  
-> Для **Linux / macOS** см. [раздел 8](#8-linux--macos) — те же шаги, другие команды.  
+> Для **Linux / macOS** см. [раздел 9](#9-linux--macos) — те же шаги, другие команды.  
 > **English:** [README_EN.md](./README_EN.md)
 
 ---
@@ -17,14 +17,15 @@
 5. [Расширение notion2api-exporter](#5-расширение-notion2api-exporter)  
 6. [Запуск API-сервера](#6-запуск-api-сервера)  
 7. [Проверка и использование API](#7-проверка-и-использование-api)  
-8. [Linux / macOS](#8-linux--macos)  
-9. [Веб-UI: Settings, GitHub, Plan/Build, вложения](#9-веб-ui-settings-github-planbuild-вложения)  
-10. [Переменные окружения](#10-переменные-окружения)  
-11. [Docker](#11-docker)  
-12. [Безопасность](#12-безопасность)  
-13. [Частые проблемы](#13-частые-проблемы)  
-14. [Структура репозитория](#14-структура-репозитория)  
-15. [Дисклеймер](#15-дисклеймер)  
+8. [Доступные модели](#8-доступные-модели)  
+9. [Linux / macOS](#9-linux--macos)  
+10. [Веб-UI: Settings, GitHub, Plan/Build, вложения](#10-веб-ui-settings-github-planbuild-вложения)  
+11. [Переменные окружения](#11-переменные-окружения)  
+12. [Docker](#12-docker)  
+13. [Безопасность](#13-безопасность)  
+14. [Частые проблемы](#14-частые-проблемы)  
+15. [Структура репозитория](#15-структура-репозитория)  
+16. [Дисклеймер](#16-дисклеймер)  
 
 ---
 
@@ -326,12 +327,51 @@ for chunk in r:
 | **OpenCode** | custom provider, base URL `http://localhost:8000/v1` (tool-agent **ограничен**: нет полноценных tool_calls) |
 | Свои скрипты | любой SDK с `base_url` OpenAI |
 
-Имена моделей — **ровно** как в `GET /v1/models` (например `claude-sonnet4.6`, `gpt-5.5`).  
-Список зависит от Notion и `app/model_registry.py`. Новые модели (Fable5 и т.д.) — только если известен **внутренний** id из Network Notion.
+Имена моделей — **ровно** как в `GET /v1/models` и таблице ниже (например `claude-sonnet4.6`, `gpt-5.5`, `fable-5`).  
+Источник правды: `app/model_registry.py`. Список в UI/API обновляется автоматически при старте сервера.
 
 ---
 
-## 8. Linux / macOS
+## 8. Доступные модели
+
+Публичный id (колонка **API id**) передаётся в `model` у `/v1/chat/completions` и в Web UI.  
+**Default:** `claude-sonnet4.6` (Claude Sonnet 4.6).
+
+| API id | Display name | Семья |
+|--------|--------------|--------|
+| `claude-opus4.6` | Claude Opus 4.6 | Claude |
+| `claude-opus4.7` | Claude Opus 4.7 | Claude |
+| `claude-opus4.8` | Claude Opus 4.8 | Claude |
+| `claude-sonnet4.6` | Claude Sonnet 4.6 | Claude *(default)* |
+| `claude-sonnet5` | Claude Sonnet 5 | Claude |
+| `claude-haiku4.5` | Claude Haiku 4.5 | Claude |
+| `gemini-2.5flash` | Gemini 2.5 Flash | Gemini |
+| `gemini-3.1pro` | Gemini 3.1 Pro | Gemini |
+| `gemini-3.5flash` | Gemini 3.5 Flash | Gemini |
+| `gemini-3-flash` | Gemini 3 Flash | Gemini |
+| `gpt-5.2` | GPT-5.2 | GPT |
+| `gpt-5.4` | GPT-5.4 | GPT |
+| `gpt-5.4-mini` | GPT-5.4 Mini | GPT |
+| `gpt-5.4-nano` | GPT-5.4 Nano | GPT |
+| `gpt-5.5` | GPT-5.5 | GPT |
+| `gpt-5.6-sol` | GPT-5.6 Sol | GPT |
+| `gpt-5.6-terra` | GPT-5.6 Terra | GPT |
+| `gpt-5.6-luna` | GPT-5.6 Luna | GPT |
+| `kimi-2.6` | Kimi 2.6 | Kimi |
+| `kimi-2.7-code` | Kimi 2.7 Code | Kimi |
+| `grok-4.3` | Grok 4.3 | Grok |
+| `grok-spacexai4.5` | SpaceXAI 4.5 | Grok |
+| `grok-build0.1` | Grok Build 0.1 | Grok |
+| `deepseek-v4pro` | DeepSeek V4 Pro | DeepSeek |
+| `glm-5.2` | GLM 5.2 | GLM |
+| `fable-5` | Fable 5 | Fable |
+
+Живой список: `GET http://localhost:8000/v1/models`.  
+Доступность в Notion AI зависит от **вашей** подписки / workspace — id в реестре ≠ гарантия, что Notion отдаст ответ на каждый аккаунт.
+
+---
+
+## 9. Linux / macOS
 
 ```bash
 cd path/to/notion2api
@@ -371,7 +411,7 @@ python -m uvicorn app.server:app --host 0.0.0.0 --port 8000
 
 ---
 
-## 9. Веб-UI: Settings, GitHub, Plan/Build, вложения
+## 10. Веб-UI: Settings, GitHub, Plan/Build, вложения
 
 После старта сервера откройте **http://localhost:8000**.
 
@@ -527,7 +567,7 @@ Vision через reverse API — best-effort, не 100% как веб Notion.
 
 ---
 
-## 10. Переменные окружения
+## 11. Переменные окружения
 
 См. `.env.example`. Важное:
 
@@ -544,7 +584,7 @@ Vision через reverse API — best-effort, не 100% как веб Notion.
 
 ---
 
-## 11. Docker
+## 12. Docker
 
 ```bash
 # заполните accounts.json и .env
@@ -559,7 +599,7 @@ docker-compose down
 
 ---
 
-## 12. Безопасность
+## 13. Безопасность
 
 - **Не коммитьте** `accounts.json`, `.env`, PAT, cookies  
 - Token Notion = доступ к workspace; GitHub PAT = доступ к репо  
@@ -569,7 +609,7 @@ docker-compose down
 
 ---
 
-## 13. Частые проблемы
+## 14. Частые проблемы
 
 | Симптом | Что проверить |
 |---------|----------------|
@@ -581,11 +621,11 @@ docker-compose down
 | Hermes / чужой `python` | полный путь к Python 3.11+ или только `.venv\Scripts\python.exe` |
 | GitHub push refuse / verify | Fix & push; CRLF; один клик; см. панель статуса |
 | OpenCode «не создаёт папки» | нет tool_calls у моста — файлы через Web UI GitHub или Continue/Aider |
-| Модели «нет Fable5» | нужен internal model id из Network Notion + правка `app/model_registry.py` |
+| Модели «нет в UI» | см. [§8](#8-доступные-модели); id должен совпадать с `GET /v1/models` |
 
 ---
 
-## 14. Структура репозитория
+## 15. Структура репозитория
 
 ```text
 notion2api/
@@ -614,7 +654,7 @@ notion2api/
 
 ---
 
-## 15. Дисклеймер
+## 16. Дисклеймер
 
 Проект для образовательных и личных сценариев.  
 Авторы и контрибьюторы **не несут ответственности** за блокировки аккаунтов, потерю данных или нарушение ToS сторонних сервисов.  

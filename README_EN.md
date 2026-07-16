@@ -3,7 +3,7 @@
 **Notion AI → local OpenAI-compatible API** (`/v1/chat/completions`) + web chat (Notion AI Studio) with GitHub push, Plan/Build/Chat modes, and attachments.
 
 > **The primary walkthrough is written for Windows** (verified: PowerShell, venv, Chrome/Edge).  
-> For **Linux / macOS**, see [section 8](#8-linux--macos) — same steps, different commands.  
+> For **Linux / macOS**, see [section 9](#9-linux--macos) — same steps, different commands.  
 > **Русский:** [README.md](./README.md)
 
 ---
@@ -17,14 +17,15 @@
 5. [Extension: notion2api-exporter](#5-extension-notion2api-exporter)  
 6. [Starting the API server](#6-starting-the-api-server)  
 7. [Verify and use the API](#7-verify-and-use-the-api)  
-8. [Linux / macOS](#8-linux--macos)  
-9. [Web UI: Settings, GitHub, Plan/Build, attachments](#9-web-ui-settings-github-planbuild-attachments)  
-10. [Environment variables](#10-environment-variables)  
-11. [Docker](#11-docker)  
-12. [Security](#12-security)  
-13. [Troubleshooting](#13-troubleshooting)  
-14. [Repository layout](#14-repository-layout)  
-15. [Disclaimer](#15-disclaimer)  
+8. [Available models](#8-available-models)  
+9. [Linux / macOS](#9-linux--macos)  
+10. [Web UI: Settings, GitHub, Plan/Build, attachments](#10-web-ui-settings-github-planbuild-attachments)  
+11. [Environment variables](#11-environment-variables)  
+12. [Docker](#12-docker)  
+13. [Security](#13-security)  
+14. [Troubleshooting](#14-troubleshooting)  
+15. [Repository layout](#15-repository-layout)  
+16. [Disclaimer](#16-disclaimer)  
 
 ---
 
@@ -326,12 +327,51 @@ for chunk in r:
 | **OpenCode** | custom provider, base URL `http://localhost:8000/v1` (tool-agent is **limited**: no real tool_calls) |
 | Your scripts | any OpenAI SDK with `base_url` |
 
-Model names must match **`GET /v1/models`** exactly (e.g. `claude-sonnet4.6`, `gpt-5.5`).  
-List depends on Notion and `app/model_registry.py`. New models only work if you know the **internal** id from Notion Network traffic.
+Model names must match **`GET /v1/models`** and the table below exactly (e.g. `claude-sonnet4.6`, `gpt-5.5`, `fable-5`).  
+Source of truth: `app/model_registry.py`. The UI/API list refreshes automatically when the server starts.
 
 ---
 
-## 8. Linux / macOS
+## 8. Available models
+
+The public id (**API id** column) is what you pass as `model` to `/v1/chat/completions` and what the Web UI uses.  
+**Default:** `claude-sonnet4.6` (Claude Sonnet 4.6).
+
+| API id | Display name | Family |
+|--------|--------------|--------|
+| `claude-opus4.6` | Claude Opus 4.6 | Claude |
+| `claude-opus4.7` | Claude Opus 4.7 | Claude |
+| `claude-opus4.8` | Claude Opus 4.8 | Claude |
+| `claude-sonnet4.6` | Claude Sonnet 4.6 | Claude *(default)* |
+| `claude-sonnet5` | Claude Sonnet 5 | Claude |
+| `claude-haiku4.5` | Claude Haiku 4.5 | Claude |
+| `gemini-2.5flash` | Gemini 2.5 Flash | Gemini |
+| `gemini-3.1pro` | Gemini 3.1 Pro | Gemini |
+| `gemini-3.5flash` | Gemini 3.5 Flash | Gemini |
+| `gemini-3-flash` | Gemini 3 Flash | Gemini |
+| `gpt-5.2` | GPT-5.2 | GPT |
+| `gpt-5.4` | GPT-5.4 | GPT |
+| `gpt-5.4-mini` | GPT-5.4 Mini | GPT |
+| `gpt-5.4-nano` | GPT-5.4 Nano | GPT |
+| `gpt-5.5` | GPT-5.5 | GPT |
+| `gpt-5.6-sol` | GPT-5.6 Sol | GPT |
+| `gpt-5.6-terra` | GPT-5.6 Terra | GPT |
+| `gpt-5.6-luna` | GPT-5.6 Luna | GPT |
+| `kimi-2.6` | Kimi 2.6 | Kimi |
+| `kimi-2.7-code` | Kimi 2.7 Code | Kimi |
+| `grok-4.3` | Grok 4.3 | Grok |
+| `grok-spacexai4.5` | SpaceXAI 4.5 | Grok |
+| `grok-build0.1` | Grok Build 0.1 | Grok |
+| `deepseek-v4pro` | DeepSeek V4 Pro | DeepSeek |
+| `glm-5.2` | GLM 5.2 | GLM |
+| `fable-5` | Fable 5 | Fable |
+
+Live list: `GET http://localhost:8000/v1/models`.  
+Whether Notion AI actually serves a model depends on **your** subscription / workspace — being in the registry is not a guarantee for every account.
+
+---
+
+## 9. Linux / macOS
 
 ```bash
 cd path/to/notion2api
@@ -371,7 +411,7 @@ API and UI logic are the **same**.
 
 ---
 
-## 9. Web UI: Settings, GitHub, Plan/Build, attachments
+## 10. Web UI: Settings, GitHub, Plan/Build, attachments
 
 After the server is up, open **http://localhost:8000**.
 
@@ -527,7 +567,7 @@ In Web UI Settings, **Base URL** = `http://localhost:8000` (**no** `/v1`).
 
 ---
 
-## 10. Environment variables
+## 11. Environment variables
 
 See `.env.example`. Important ones:
 
@@ -544,7 +584,7 @@ Account priority: **`accounts.json`** > `NOTION_ACCOUNTS` in env.
 
 ---
 
-## 11. Docker
+## 12. Docker
 
 ```bash
 # fill accounts.json and .env first
@@ -559,7 +599,7 @@ Host port: `HOST_PORT` / `8000`.
 
 ---
 
-## 12. Security
+## 13. Security
 
 - **Do not commit** `accounts.json`, `.env`, PATs, cookies  
 - Notion token = workspace access; GitHub PAT = repo access  
@@ -569,7 +609,7 @@ Host port: `HOST_PORT` / `8000`.
 
 ---
 
-## 13. Troubleshooting
+## 14. Troubleshooting
 
 | Symptom | Check |
 |---------|--------|
@@ -581,12 +621,12 @@ Host port: `HOST_PORT` / `8000`.
 | Hermes / wrong `python` | full path to Python 3.11+ or only `.venv\Scripts\python.exe` |
 | GitHub push refuse / verify | Fix & push; CRLF; single click; status panel |
 | OpenCode “doesn’t create folders” | no tool_calls on this bridge — use Web UI GitHub or Continue/Aider |
-| Missing model “Fable5” | need internal model id from Notion Network + `app/model_registry.py` |
+| Model missing in UI | see [§8](#8-available-models); id must match `GET /v1/models` |
 | Chat dead after Settings change | Base URL wrong / missing server / CORS |
 
 ---
 
-## 14. Repository layout
+## 15. Repository layout
 
 ```text
 notion2api/
@@ -615,7 +655,7 @@ Sibling project (separate repo): **[notion2api-exporter](https://github.com/Jyni
 
 ---
 
-## 15. Disclaimer
+## 16. Disclaimer
 
 For educational and personal use.  
 Authors and contributors are **not responsible** for account bans, data loss, or ToS violations of third-party services.  

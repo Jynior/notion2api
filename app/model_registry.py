@@ -4,17 +4,30 @@ MODEL_MAP: dict[str, str] = {
     "claude-opus4.8": "ambrosia-tart-high",
     "claude-sonnet4.6": "almond-croissant-low",
     "claude-sonnet5": "angel-cake-high",
+    "claude-haiku4.5": "anthropic-haiku-4.5",
     "gemini-2.5flash": "vertex-gemini-2.5-flash",
     "gemini-3.1pro": "galette-medium-thinking",
+    "gemini-3.5flash": "vertex-gemini-3.5-flash",
+    "gemini-3-flash": "gingerbread",
     "gpt-5.2": "oatmeal-cookie",
     "gpt-5.4": "oval-kumquat-medium",
+    "gpt-5.4-mini": "oregon-grape-medium",
+    "gpt-5.4-nano": "otaheite-apple-medium",
     "gpt-5.5": "opal-quince-medium",
+    "gpt-5.6-sol": "orange-mousse",
+    "gpt-5.6-terra": "orchid-muffin",
+    "gpt-5.6-luna": "olive-jellyroll",
     "kimi-2.6": "fireworks-kimi-k2.6",
+    "kimi-2.7-code": "fireworks-kimi-k2.7",
     "grok-4.3": "xigua-mochi-medium",
+    "grok-spacexai4.5": "strawberry-whoopiepie",
     "grok-build0.1": "xinomavro-cake",
     "deepseek-v4pro": "baseten-deepseek-v4-pro",
+    "glm-5.2": "baseten-glm-5.2",
+    "fable-5": "acai-budino-high",
 }
 
+# Reverse lookup: Notion internal id → public id (for get_standard_model)
 NOTION_MODEL_REVERSE_MAP: dict[str, str] = {value: key for key, value in MODEL_MAP.items()}
 
 DISPLAY_NAMES: dict[str, str] = {
@@ -23,16 +36,29 @@ DISPLAY_NAMES: dict[str, str] = {
     "claude-opus4.8": "Claude Opus 4.8",
     "claude-sonnet4.6": "Claude Sonnet 4.6",
     "claude-sonnet5": "Claude Sonnet 5",
+    "claude-haiku4.5": "Claude Haiku 4.5",
     "gemini-2.5flash": "Gemini 2.5 Flash",
     "gemini-3.1pro": "Gemini 3.1 Pro",
+    "gemini-3.5flash": "Gemini 3.5 Flash",
+    "gemini-3-flash": "Gemini 3 Flash",
     "gpt-5.2": "GPT-5.2",
     "gpt-5.4": "GPT-5.4",
+    "gpt-5.4-mini": "GPT-5.4 Mini",
+    "gpt-5.4-nano": "GPT-5.4 Nano",
     "gpt-5.5": "GPT-5.5",
+    "gpt-5.6-sol": "GPT-5.6 Sol",
+    "gpt-5.6-terra": "GPT-5.6 Terra",
+    "gpt-5.6-luna": "GPT-5.6 Luna",
     "kimi-2.6": "Kimi 2.6",
+    "kimi-2.7-code": "Kimi 2.7 Code",
     "grok-4.3": "Grok 4.3",
+    "grok-spacexai4.5": "SpaceXAI 4.5",
     "grok-build0.1": "Grok Build 0.1",
     "deepseek-v4pro": "DeepSeek V4 Pro",
+    "glm-5.2": "GLM 5.2",
+    "fable-5": "Fable 5",
 }
+
 
 MODEL_ICONS: dict[str, str] = {
     "claude-opus4.6": "✳️",
@@ -40,18 +66,30 @@ MODEL_ICONS: dict[str, str] = {
     "claude-opus4.8": "✳️",
     "claude-sonnet4.6": "✳️",
     "claude-sonnet5": "✳️",
+    "claude-haiku4.5": "✳️",
     "gemini-2.5flash": "✦",
     "gemini-3.1pro": "✦",
-    "gpt-5.2": "⚙",
-    "gpt-5.4": "⚙",
-    "gpt-5.5": "⚙",
-    "kimi-2.6": "🌙",
-    "grok-4.3": "⚡",
-    "grok-build0.1": "⚡",
-    "deepseek-v4pro": "🐋",
+    "gemini-3.5flash": "✦",
+    "gemini-3-flash": "✦",
+    "gpt-5.2": "⚙️",
+    "gpt-5.4": "⚙️",
+    "gpt-5.4-mini": "⚙️",
+    "gpt-5.4-nano": "⚙️",
+    "gpt-5.5": "⚙️",
+    "gpt-5.6-sol": "⚙️",
+    "gpt-5.6-terra": "⚙️",
+    "gpt-5.6-luna": "⚙️",
+    "kimi-2.6": "",
+    "kimi-2.7-code": "",
+    "grok-4.3": "⚡️",
+    "grok-spacexai4.5": "⚡️",
+    "grok-build0.1": "⚡️",
+    "deepseek-v4pro": "",
+    "glm-5.2": "",
+    "fable-5": "✳️",
 }
 
-# Default to Sonnet 4.6（best balance of speed and quality)
+# Default to Sonnet 4.6 (best balance of speed and quality)
 DEFAULT_MODEL = "claude-sonnet4.6"
 
 
@@ -60,7 +98,7 @@ def get_notion_model(model_name: str) -> str:
 
 
 # Notion internal ids that use markdown-chat (vertex-prefixed models)
-# Gemini 3.1 Pro (galette-medium-thinking) Switched to workflow; no longer uses markdown-chat
+# Gemini 3.1 Pro (galette-medium-thinking) switched to workflow; no longer uses markdown-chat
 MARKDOWN_CHAT_MODELS: set[str] = {
     "vertex-gemini-2.5-flash",
 }
