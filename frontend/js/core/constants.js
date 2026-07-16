@@ -1,0 +1,135 @@
+/**
+ * Constants Module — Notion AI Studio
+ */
+
+window.NotionAI = window.NotionAI || {};
+window.NotionAI.Core = window.NotionAI.Core || {};
+
+window.NotionAI.Core.Constants = {
+    STORAGE_KEYS: {
+        API_KEY: 'claude_api_key',
+        BASE_URL: 'claude_base_url',
+        CHATS: 'claude_chats',
+        THEME: 'theme'
+    },
+
+    API: {
+        CHAT_COMPLETIONS: '/v1/chat/completions',
+        DELETE_CONVERSATION: (id) => `/v1/conversations/${encodeURIComponent(id)}`
+    },
+
+    // Model definitions with grouping
+    MODEL_GROUPS: [
+        {
+            label: 'Anthropic',
+            models: [
+                { id: "claude-sonnet4.6", label: "Sonnet 4.6", icon: "✳️", desc: "Fast & efficient" },
+                { id: "claude-sonnet5", label: "Sonnet 5", icon: "✳️", badge: "New" },
+                { id: "claude-opus4.6", label: "Opus 4.6", icon: "✳️" },
+                { id: "claude-opus4.7", label: "Opus 4.7", icon: "✳️" },
+                { id: "claude-opus4.8", label: "Opus 4.8", icon: "✳️" },
+            ]
+        },
+        {
+            label: 'OpenAI',
+            models: [
+                { id: "gpt-5.2", label: "GPT-5.2", icon: "⚙" },
+                { id: "gpt-5.4", label: "GPT-5.4", icon: "⚙" },
+                { id: "gpt-5.5", label: "GPT-5.5", icon: "⚙", badge: "Beta" },
+            ]
+        },
+        {
+            label: 'Google',
+            models: [
+                { id: "gemini-2.5flash", label: "Gemini 2.5 Flash", icon: "✦", desc: "No thinking delay" },
+                { id: "gemini-3.1pro", label: "Gemini 3.1 Pro", icon: "✦" },
+            ]
+        },
+        {
+            label: 'Moonshot',
+            models: [
+                { id: "kimi-2.6", label: "Kimi 2.6", icon: "🌙", badge: "Beta" },
+            ]
+        },
+        {
+            label: 'xAI',
+            models: [
+                { id: "grok-4.3", label: "Grok 4.3", icon: "⚡", badge: "New" },
+                { id: "grok-build0.1", label: "Grok Build 0.1", icon: "⚡", badge: "New" },
+            ]
+        },
+        {
+            label: 'DeepSeek',
+            models: [
+                { id: "deepseek-v4pro", label: "DeepSeek V4 Pro", icon: "🐋", badge: "New" },
+            ]
+        }
+    ],
+
+    // Flat model list (for backward compat)
+    MODELS: [
+        { id: "claude-sonnet4.6", label: "Sonnet 4.6" },
+        { id: "claude-sonnet5", label: "Sonnet 5" },
+        { id: "claude-opus4.6", label: "Opus 4.6" },
+        { id: "claude-opus4.7", label: "Opus 4.7" },
+        { id: "claude-opus4.8", label: "Opus 4.8" },
+        { id: "gpt-5.2", label: "GPT-5.2" },
+        { id: "gpt-5.4", label: "GPT-5.4" },
+        { id: "gpt-5.5", label: "GPT-5.5" },
+        { id: "gemini-2.5flash", label: "Gemini 2.5 Flash" },
+        { id: "gemini-3.1pro", label: "Gemini 3.1 Pro" },
+        { id: "kimi-2.6", label: "Kimi 2.6" },
+        { id: "grok-4.3", label: "Grok 4.3" },
+        { id: "grok-build0.1", label: "Grok Build 0.1" },
+        { id: "deepseek-v4pro", label: "DeepSeek V4 Pro" },
+    ],
+
+    DEFAULT_MODEL: "claude-sonnet4.6",
+
+    MODEL_DISPLAY_NAMES: {
+        "claude-sonnet4.6": "Sonnet 4.6",
+        "claude-sonnet5": "Sonnet 5",
+        "claude-opus4.6": "Opus 4.6",
+        "claude-opus4.7": "Opus 4.7",
+        "claude-opus4.8": "Opus 4.8",
+        "gpt-5.2": "GPT-5.2",
+        "gpt-5.4": "GPT-5.4",
+        "gpt-5.5": "GPT-5.5",
+        "gemini-2.5flash": "Gemini 2.5 Flash",
+        "gemini-3.1pro": "Gemini 3.1 Pro",
+        "kimi-2.6": "Kimi 2.6",
+        "grok-4.3": "Grok 4.3",
+        "grok-build0.1": "Grok Build 0.1",
+        "deepseek-v4pro": "DeepSeek V4 Pro",
+    },
+
+    MODEL_ICONS: {
+        "claude-sonnet4.6": "✳️",
+        "claude-sonnet5": "✳️",
+        "claude-opus4.6": "✳️",
+        "claude-opus4.7": "✳️",
+        "claude-opus4.8": "✳️",
+        "gpt-5.2": "⚙",
+        "gpt-5.4": "⚙",
+        "gpt-5.5": "⚙",
+        "gemini-2.5flash": "✦",
+        "gemini-3.1pro": "✦",
+        "kimi-2.6": "🌙",
+        "grok-4.3": "⚡",
+        "grok-build0.1": "⚡",
+        "deepseek-v4pro": "🐋",
+    },
+
+    GREETINGS: {
+        EARLY_MORNING: "Early bird thinking",
+        MORNING: "Morning clarity",
+        MIDDAY: "Midday focus",
+        AFTERNOON: "Afternoon momentum",
+        GOLDEN_HOUR: "Golden hour thinking",
+        EVENING: "Evening deep work",
+        NIGHT_OWL: "Night owl mode",
+        LATE_NIGHT: "Late night thinking"
+    },
+
+    CLIENT_TYPE: 'Web'
+};
