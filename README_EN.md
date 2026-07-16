@@ -34,7 +34,7 @@
 |-----------|------|
 | **Notion2API (this repo)** | Local server: your Notion AI subscription → OpenAI-style endpoint |
 | **Web UI** (`http://localhost:8000`) | Chat, model picker, GitHub commit, Plan/Build modes, attachments |
-| **notion2api-exporter** | Chrome/Edge extension: export `token_v2` + workspace into `accounts.json` |
+| **[notion2api-exporter](https://github.com/Jynior/notion2api-exporter)** | Chrome/Edge extension: export `token_v2` + workspace into `accounts.json` |
 
 **Not** an official Notion / OpenAI / Anthropic API.  
 This is an open-source bridge (reverse-engineered Notion AI web). Models and limits depend on **your** Notion plan.
@@ -149,6 +149,8 @@ Format — a **JSON array**:
 
 ### Method A — **notion2api-exporter** (recommended)
 
+Repo (download / clone): **https://github.com/Jynior/notion2api-exporter**  
+
 See [section 5](#5-extension-notion2api-exporter).  
 It finds `token_v2` (including on **app.notion.com**) and workspace data, then saves `accounts.json` in the correct format.
 
@@ -206,7 +208,13 @@ Expected: `ok True`.
 
 ## 5. Extension: notion2api-exporter
 
-Separate repo/folder: **`notion2api-exporter`** (Chrome / Edge, Manifest V3).
+**Download / clone:** [github.com/Jynior/notion2api-exporter](https://github.com/Jynior/notion2api-exporter)  
+
+Separate repository (Chrome / Edge, Manifest V3). Full RU/EN guide is in that repo’s README.
+
+```powershell
+git clone https://github.com/Jynior/notion2api-exporter.git
+```
 
 ### Why
 
@@ -214,23 +222,25 @@ Separate repo/folder: **`notion2api-exporter`** (Chrome / Edge, Manifest V3).
 - Fetches users / spaces via Notion APIs  
 - Saves **`accounts.json`** in Notion2API format  
 - Options: merge with existing file, dry-run test  
+- UI: **RU / EN** language toggle  
 
 ### Install (Load unpacked)
 
-1. Chrome: `chrome://extensions` · Edge: `edge://extensions`  
-2. **Developer mode** → **Load unpacked**  
-3. Select the `notion2api-exporter` folder  
-4. Open https://app.notion.com (or notion.so) and sign in  
-5. Extension icon → **Extract session** / **Test**  
-6. **Save accounts.json…** → into the `notion2api` root (next to `login.py`)
+1. Download ZIP from GitHub (**Code → Download ZIP**) or `git clone` (link above)  
+2. Chrome: `chrome://extensions` · Edge: `edge://extensions`  
+3. **Developer mode** → **Load unpacked**  
+4. Select the **root** `notion2api-exporter` folder (contains `manifest.json`)  
+5. Open https://app.notion.com (or notion.so) and sign in  
+6. Extension icon → **Test** → **Extract session**  
+7. **Save accounts.json…** → into **this** `notion2api` project root (next to `login.py`)
 
 ### Notes
 
 - Extension only sees cookies of the **browser profile** it is installed in  
-- After `manifest.json` changes, click **Reload** on the extension  
+- After updating extension files, click **Reload**  
 - Never publish `accounts.json` or paste tokens into chats  
 
-The extension README covers what it does and how it plugs into this server.
+Details, security, disclaimer: [notion2api-exporter README](https://github.com/Jynior/notion2api-exporter/blob/main/README_EN.md).
 
 ---
 
@@ -347,7 +357,7 @@ cp .env.example .env
 python -m uvicorn app.server:app --host 0.0.0.0 --port 8000
 ```
 
-Extension: same **Chrome/Chromium/Edge** → Load unpacked → `notion2api-exporter`.
+Extension: same **Chrome/Chromium/Edge** → Load unpacked → [notion2api-exporter](https://github.com/Jynior/notion2api-exporter).
 
 Windows vs Unix:
 
@@ -601,7 +611,7 @@ notion2api/
 └── README_EN.md         # English (full)
 ```
 
-Sibling project (separate repo): **`notion2api-exporter`** — credential export.
+Sibling project (separate repo): **[notion2api-exporter](https://github.com/Jynior/notion2api-exporter)** — credential export.
 
 ---
 
@@ -631,7 +641,7 @@ By using this software you accept the risks of reverse engineering and storing s
 
 **Related projects**
 
-- **notion2api** — this server and UI  
-- **notion2api-exporter** — browser extension for `accounts.json`  
+- **notion2api** — this server and UI → https://github.com/Jynior/notion2api  
+- **notion2api-exporter** — extension for `accounts.json` → https://github.com/Jynior/notion2api-exporter  
 
-If this helped, star the repo on GitHub once it’s published.
+If this helped, star the repo on GitHub.

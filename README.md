@@ -34,7 +34,7 @@
 |-----------|------|
 | **Notion2API (этот репо)** | Локальный сервер: подписка Notion AI → endpoint как у OpenAI |
 | **Web UI** (`http://localhost:8000`) | Чат, выбор модели, GitHub commit, режимы Plan/Build, вложения |
-| **notion2api-exporter** | Расширение Chrome/Edge: выгрузка `token_v2` + workspace в `accounts.json` |
+| **[notion2api-exporter](https://github.com/Jynior/notion2api-exporter)** | Расширение Chrome/Edge: выгрузка `token_v2` + workspace в `accounts.json` |
 
 **Не является** официальным API Notion / OpenAI / Anthropic.  
 Это open-source мост (reverse-engineered Notion AI web). Модели и лимиты зависят от **вашей** подписки Notion.
@@ -149,6 +149,8 @@ copy .env.example .env
 
 ### Способ A — расширение **notion2api-exporter** (рекомендуется)
 
+Репозиторий (скачать / clone): **https://github.com/Jynior/notion2api-exporter**  
+
 См. [раздел 5](#5-расширение-notion2api-exporter).  
 Оно само находит `token_v2` (в т.ч. на **app.notion.com**) и workspace, сохраняет `accounts.json` в нужном формате.
 
@@ -206,7 +208,13 @@ copy .env.example .env
 
 ## 5. Расширение notion2api-exporter
 
-Отдельный репозиторий / папка: **`notion2api-exporter`** (Chrome / Edge, Manifest V3).
+**Скачать / клонировать:** [github.com/Jynior/notion2api-exporter](https://github.com/Jynior/notion2api-exporter)  
+
+Отдельный репозиторий (Chrome / Edge, Manifest V3). Полный гайд RU/EN — в README того репо.
+
+```powershell
+git clone https://github.com/Jynior/notion2api-exporter.git
+```
 
 ### Зачем
 
@@ -214,23 +222,25 @@ copy .env.example .env
 - Тянет users / spaces через Notion API  
 - Сохраняет **`accounts.json`** в формате Notion2API  
 - Опции: merge с существующим файлом, тест без сохранения  
+- UI: переключатель **RU / EN**
 
 ### Установка (Load unpacked)
 
-1. Chrome: `chrome://extensions` · Edge: `edge://extensions`  
-2. **Developer mode** → **Load unpacked**  
-3. Укажите папку `notion2api-exporter`  
-4. Откройте https://app.notion.com (или notion.so) и войдите  
-5. Иконка расширения → **Извлечь сессию** / **Тест**  
-6. **Сохранить accounts.json…** → в корень `notion2api` (рядом с `login.py`)
+1. Скачайте ZIP с GitHub (**Code → Download ZIP**) или `git clone` (ссылка выше)  
+2. Chrome: `chrome://extensions` · Edge: `edge://extensions`  
+3. **Developer mode** → **Load unpacked**  
+4. Укажите **корневую папку** `notion2api-exporter` (где `manifest.json`)  
+5. Откройте https://app.notion.com (или notion.so) и войдите  
+6. Иконка расширения → **Тест** → **Извлечь сессию**  
+7. **Сохранить accounts.json…** → в корень **этого** проекта `notion2api` (рядом с `login.py`)
 
 ### Важно
 
 - Расширение видит cookies **того профиля** браузера, куда установлено  
-- После обновления `manifest.json` нажимайте **Reload** у расширения  
+- После обновления файлов расширения нажимайте **Reload**  
 - Не публикуйте `accounts.json` и не вставляйте token в чаты  
 
-Кратко в README расширения — зачем оно и как стыкуется с этим сервером.
+Подробности, безопасность и дисклеймер: [README notion2api-exporter](https://github.com/Jynior/notion2api-exporter/blob/main/README.md).
 
 ---
 
@@ -347,7 +357,7 @@ cp .env.example .env
 python -m uvicorn app.server:app --host 0.0.0.0 --port 8000
 ```
 
-Расширение: тот же **Chrome/Chromium/Edge** → Load unpacked → `notion2api-exporter`.
+Расширение: тот же **Chrome/Chromium/Edge** → Load unpacked → [notion2api-exporter](https://github.com/Jynior/notion2api-exporter).
 
 Отличия от Windows:
 
@@ -600,7 +610,7 @@ notion2api/
 └── README_EN.md         # English (full)
 ```
 
-Рядом (отдельный репозиторий): **`notion2api-exporter`** — выгрузка credentials.
+Рядом (отдельный репозиторий): **[notion2api-exporter](https://github.com/Jynior/notion2api-exporter)** — выгрузка credentials.
 
 ---
 
@@ -630,7 +640,7 @@ notion2api/
 
 **Связанные проекты**
 
-- **notion2api** — этот сервер и UI  
-- **notion2api-exporter** — браузерное расширение для `accounts.json`  
+- **notion2api** — этот сервер и UI → https://github.com/Jynior/notion2api  
+- **notion2api-exporter** — расширение для `accounts.json` → https://github.com/Jynior/notion2api-exporter  
 
-Если инструкция помогла — поставьте Star на GitHub (когда репозиторий опубликован).
+Если инструкция помогла — поставьте Star на GitHub.
